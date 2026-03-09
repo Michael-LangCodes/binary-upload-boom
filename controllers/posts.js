@@ -2,17 +2,23 @@ const cloudinary = require("../middleware/cloudinary");
 const Post = require("../models/Post");
 const Comment = require("../models/Comment");
 
+//export for multiple functions
 module.exports = {
+  //method for getting profile
   getProfile: async (req, res) => {
     try {
+      //finds all posts
       const posts = await Post.find({ user: req.user.id });
+     //renders all posts
       res.render("profile.ejs", { posts: posts, user: req.user });
     } catch (err) {
       console.log(err);
     }
   },
+  //method for getting feed
   getFeed: async (req, res) => {
     try {
+      //gets all posts and sorts them by recent
       const posts = await Post.find().sort({ createdAt: "desc" }).lean();
       res.render("feed.ejs", { posts: posts });
     } catch (err) {
@@ -21,6 +27,7 @@ module.exports = {
   },
   getPost: async (req, res) => {
     try {
+      //gets specific post by ID
       const post = await Post.findById(req.params.id);
       res.render("post.ejs", { post: post, user: req.user });
     } catch (err) {
@@ -31,7 +38,7 @@ module.exports = {
     try {
       // Upload image to cloudinary
       const result = await cloudinary.uploader.upload(req.file.path);
-
+      //creates post with image
       await Post.create({
         title: req.body.title,
         image: result.secure_url,
@@ -48,6 +55,7 @@ module.exports = {
   },
   likePost: async (req, res) => {
     try {
+      //gets the post based off the id and udpates likes
       await Post.findOneAndUpdate(
         { _id: req.params.id },
         {
